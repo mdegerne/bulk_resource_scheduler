@@ -16,16 +16,6 @@
 
 package bulk_resource_scheduler
 
-// Modifier determines how to match Properties.
-type Modifier int
-
-const (
-	Equal = iota
-	Contains
-	GreaterThanEqual
-	LessThanEqual
-)
-
 // Sense defines how to interpret a matching characteristic.
 type Sense int
 
@@ -40,7 +30,6 @@ const (
 type Property interface {
 	Name() string
 	Matches(Property) (bool, error)
-	Modifier() Modifier
 	Sense() Sense
 }
 
