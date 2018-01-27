@@ -47,7 +47,7 @@ type Property interface {
 // Resource is a resource available for matching.
 type Resource interface {
 	Name() string
-	Properties() []Property
+	Properties() map[string]Property // string must be property.Name()
 }
 
 // Requirement is a request in search of a resource, all Properties
