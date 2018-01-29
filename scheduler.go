@@ -114,74 +114,87 @@ func (b ByNeed) Less(i, j int) bool {
 	return byneedless(b, i, j)
 }
 
-// bulk_resource_scheduler is a Go library intended to match resources
-// to requirements such that each resource fullfills 0 or 1 requirement.
 // Schedule matches resources to requirements such that each resource
 // fullfills 0 or 1 requirements with all of thre requirements being met.
 // If not all requirements can be met, an error is returned and the map
 // will not be complete.
+// 
+// Note:
+// Name() is used as a proxy for both Requests and Resources in maps so must be unique
 func Schedule(resources []Resource,
-	requirements []Requirement) (map[Resource]Requirement, error) {
+	requirements []Requirement) (map[string]Requirement, error) {
 	// TODO: Reduce runtime complexity - currently O(nRes * nReq)
 	// TODO: Reduce geographic complexity - Better structure(s)
-	acceptable := make(map[Requirement][]respref)
-	n_assigned := make(map[Requirement]int)
-	acceptable_to := make(map[Resource][]Requirement)
-	assigned := make(map[Resource]Requirement)
+	acceptable := make(map[string][]respref)
+	n_assigned := make(map[string]int)
+	acceptable_to := make(map[string][]Requirement)
+	assigned := make(map[string]Requirement)
 	var errs []string
 	for _, req := range requirements {
 		for _, res := range resources {
 			acc, pref := Matches(req, res)
 			if acc {
-				acceptable[req] = append(acceptable[req], respref{res, pref})
-				acceptable_to[res] = append(acceptable_to[res], req)
+                if acceptable[req.Name()] == nil {
+                    acceptable[req.Name()] = []respref{ respref{res, pref} }
+                } else {
+                    acceptable[req.Name()] = append(acceptable[req.Name()], respref{res, pref})
+                }
+                if acceptable_to[res.Name()] == nil {
+                    acceptable_to[res.Name()] = []Requirement{ req }
+                } else {
+                    acceptable_to[res.Name()] = append(acceptable_to[res.Name()], req)
+                }
 			}
 		}
 	}
 	s_requirements := make([]Requirement, len(requirements))
-	copy(requirements, s_requirements)
+	copy(s_requirements, requirements)
 	byneedless = func(b ByNeed, i, j int) bool {
 		min_i, _ := b[i].Count()
 		min_j, _ := b[j].Count()
-		acc_i := len(acceptable[b[i]])
-		acc_j := len(acceptable[b[j]])
+		acc_i := len(acceptable[b[i].Name()])
+		acc_j := len(acceptable[b[j].Name()])
 		return (acc_i - min_i) < (acc_j - min_j)
 	}
 	sort.Sort(ByNeed(s_requirements))
 	rprefless = func(rps resprefs, i, j int) bool {
-		_, i_assigned := assigned[rps[i].res]
-		_, j_assigned := assigned[rps[j].res]
+		_, i_assigned := assigned[rps[i].res.Name()]
+		_, j_assigned := assigned[rps[j].res.Name()]
 		if i_assigned || j_assigned {
 			return j_assigned
 		}
 		if rps[i].pref != rps[j].pref {
 			return rps[i].pref < rps[j].pref
 		}
-		i_acc_to := len(acceptable_to[rps[i].res])
-		j_acc_to := len(acceptable_to[rps[j].res])
+		i_acc_to := len(acceptable_to[rps[i].res.Name()])
+		j_acc_to := len(acceptable_to[rps[j].res.Name()])
 		return i_acc_to < j_acc_to
 	}
 	for _, req := range s_requirements {
 		// sort acceptable by prefer/avoid (primary), num_acceptable_to (secondary)
-		sort.Sort(resprefs(acceptable[req]))
+        if len(acceptable[req.Name()]) > 1 {
+            sort.Sort(resprefs(acceptable[req.Name()]))
+        }
 		// fill minimum requirement from acceptable
 		min, _ := req.Count()
-		for i, rp := 0, acceptable[req][0]; i < len(acceptable[req]) && n_assigned[req] < min; i, rp = i+1, acceptable[req][i+1] {
-			if _, ok := assigned[rp.res]; !ok {
-				assigned[rp.res] = req
-				n_assigned[req] += 1
+		for i := 0; i < len(acceptable[req.Name()]) && n_assigned[req.Name()] < min; i = i+1 {
+            rp := acceptable[req.Name()][i]
+			if _, ok := assigned[rp.res.Name()]; !ok {
+				assigned[rp.res.Name()] = req
+				n_assigned[req.Name()] += 1
 			}
 		}
-		if min > n_assigned[req] {
+		if min > n_assigned[req.Name()] {
 			errs = append(errs, fmt.Sprintf("Unable to find $d resources for %s requirement", min, req.Name()))
 		}
 	}
 	for _, req := range requirements {
 		_, max := req.Count()
-		for i, rp := 0, acceptable[req][0]; i < len(acceptable[req]) && n_assigned[req] < max; i, rp = i+1, acceptable[req][i+1] {
-			if _, ok := assigned[rp.res]; !ok {
-				assigned[rp.res] = req
-				n_assigned[req] += 1
+		for i := 0; i < len(acceptable[req.Name()]) && n_assigned[req.Name()] < max; i = i + 1 {
+            rp := acceptable[req.Name()][i]
+			if _, ok := assigned[rp.res.Name()]; !ok {
+				assigned[rp.res.Name()] = req
+				n_assigned[req.Name()] += 1
 			}
 		}
 	}

@@ -81,12 +81,13 @@ func (tr treq) Count() (Min, Max int) {
 }
 func (tr treq) AddProp(tp tprop) {
     if tr.props == nil {
-        tr.props = make([]Property, 5)
+        tr.props = []Property { tp }
+        return
     }
     tr.props = append(tr.props, tp)
 }
 
-func TestMatch(t *testing.T) {
+func TestMatch1prop1res1req(t *testing.T) {
     var resource tres
     resource.name = "testres"
     resprop := tprop{"n1", Require, 1}
@@ -106,5 +107,17 @@ func TestMatch(t *testing.T) {
     if !m {
         t.Errorf("Match failed - should be identical")
     }
-
+    reqs := []Requirement { requirement }
+    ress := []Resource { resource }
+    result, err := Schedule(ress, reqs)
+    if (err != nil) {
+        t.Errorf("Unexpected error: %T", err)
+    }
+    if len(result) != 1 {
+        t.Errorf("No result, wtf?")
+    }
+    rs_req := result[resource.Name()]
+    if rs_req.Name() != requirement.Name() {
+        t.Errorf("rs_req (%T) != requirement (%T)", rs_req, requirement)
+    }
 }

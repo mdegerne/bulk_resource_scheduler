@@ -32,8 +32,6 @@ func Matches(req Requirement, res Resource) (acceptable bool, preference int)
 
 func Schedule(resources []Resource,
     requirements []Requirement) (map[Resource]Requirement, error)
-    bulk_resource_scheduler is a Go library intended to match resources to
-    requirements such that each resource fullfills 0 or 1 requirement.
     Schedule matches resources to requirements such that each resource
     fullfills 0 or 1 requirements with all of thre requirements being met.
     If not all requirements can be met, an error is returned and the map
