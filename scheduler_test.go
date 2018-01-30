@@ -21,6 +21,8 @@ package bulk_resource_scheduler
 import (
     "errors"
     "fmt"
+    "reflect"
+    "strings"
     "testing"
 )
 
@@ -191,5 +193,69 @@ func TestVariants(t *testing.T) {
             t.Errorf("Match pref failed (i=%d) %v != %v", i, pref, tstruct.pref)
         }
 
+    }
+}
+
+type schedulerTest struct {
+    resources []tres
+    requirements []treq
+    expectedErrors []string
+    expectedMap map[string]string
+}
+
+var stests = []schedulerTest {
+    schedulerTest{
+        []tres{
+            tres{
+                "R1",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R2",
+                map[string]Property{"P1": tprop{ "P1", Require, 2}},
+            },
+        },
+        []treq{
+            treq{
+                "Req1",
+                []Property{tprop{"P1", Require, 2}},
+                1,
+                2,
+            },
+            treq{
+                "Req2",
+                []Property{tprop{"P1", Require, 1}},
+                1,
+                2,
+            },
+        },
+        []string{},
+        map[string]string{"R1": "Req2", "R2": "Req1"},
+    },
+}
+
+func TestSchedulerVariants(t *testing.T) {
+    for i, tstruct := range stests {
+        reslice := make([]Resource, len(tstruct.resources))
+        for n, r := range tstruct.resources {
+            reslice[n] = r
+        }
+        var reqslice []Requirement = make([]Requirement, len(tstruct.requirements))
+        for n, r2 := range tstruct.requirements {
+            reqslice[n] = r2
+        }
+        resmap, err := Schedule(reslice, reqslice)
+        for _, serr := range tstruct.expectedErrors {
+            if ! strings.Contains(err.Error(), serr) {
+                t.Errorf("Case #%d:Expected error: \"%s\", not found in returned errors %+v\n", i, serr, err)
+            }
+        }
+        fixedmap := map[string]string{}
+        for k,v := range resmap {
+            fixedmap[k] = v.Name()
+        }
+        if ! reflect.DeepEqual(fixedmap, tstruct.expectedMap) {
+            t.Errorf("Case #%d:Expected result map: %+v, Actual result map: %+v", i, tstruct.expectedMap, fixedmap)
+        }
     }
 }

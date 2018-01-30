@@ -31,11 +31,14 @@ func Matches(req Requirement, res Resource) (acceptable bool, preference int)
     res_property.match(req_property)
 
 func Schedule(resources []Resource,
-    requirements []Requirement) (map[Resource]Requirement, error)
+    requirements []Requirement) (map[string]Requirement, error)
     Schedule matches resources to requirements such that each resource
     fullfills 0 or 1 requirements with all of thre requirements being met.
     If not all requirements can be met, an error is returned and the map
     will not be complete.
+
+    Note: Name() is used as a proxy for both Requests and Resources in maps
+    so must be unique
 
 TYPES
 
