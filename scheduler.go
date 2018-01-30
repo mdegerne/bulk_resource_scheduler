@@ -46,34 +46,34 @@ func Matches(req Requirement, res Resource) (acceptable bool, preference int) {
 			if !found {
 				acceptable = false
 			} else {
-			    m, err := p.Matches(prop)
-			    if err == nil && (!m) {
-				    acceptable = false
-			    }
-            }
+				m, err := p.Matches(prop)
+				if err == nil && (!m) {
+					acceptable = false
+				}
+			}
 		case Prefer:
 			prop, found := res.Properties()[p.Name()]
 			if found {
-                m, err := p.Matches(prop)
-                if err == nil && (m) {
-                    preference += 1
-                }
+				m, err := p.Matches(prop)
+				if err == nil && (m) {
+					preference += 1
+				}
 			}
 		case Avoid:
 			prop, found := res.Properties()[p.Name()]
-            if found {
-			    m, _ := p.Matches(prop)
-			    if m {
-				    preference -= 1
-			    }
-            }
+			if found {
+				m, _ := p.Matches(prop)
+				if m {
+					preference -= 1
+				}
+			}
 		case Never:
 			prop, found := res.Properties()[p.Name()]
-            if found {
-                m, _ := p.Matches(prop)
-                if m {
-                    acceptable = false
-                }
+			if found {
+				m, _ := p.Matches(prop)
+				if m {
+					acceptable = false
+				}
 			}
 		}
 	}
@@ -122,7 +122,7 @@ func (b ByNeed) Less(i, j int) bool {
 // fullfills 0 or 1 requirements with all of thre requirements being met.
 // If not all requirements can be met, an error is returned and the map
 // will not be complete.
-// 
+//
 // Note:
 // Name() is used as a proxy for both Requests and Resources in maps so must be unique
 func Schedule(resources []Resource,
@@ -138,16 +138,16 @@ func Schedule(resources []Resource,
 		for _, res := range resources {
 			acc, pref := Matches(req, res)
 			if acc {
-                if acceptable[req.Name()] == nil {
-                    acceptable[req.Name()] = []respref{ respref{res, pref} }
-                } else {
-                    acceptable[req.Name()] = append(acceptable[req.Name()], respref{res, pref})
-                }
-                if acceptable_to[res.Name()] == nil {
-                    acceptable_to[res.Name()] = []Requirement{ req }
-                } else {
-                    acceptable_to[res.Name()] = append(acceptable_to[res.Name()], req)
-                }
+				if acceptable[req.Name()] == nil {
+					acceptable[req.Name()] = []respref{respref{res, pref}}
+				} else {
+					acceptable[req.Name()] = append(acceptable[req.Name()], respref{res, pref})
+				}
+				if acceptable_to[res.Name()] == nil {
+					acceptable_to[res.Name()] = []Requirement{req}
+				} else {
+					acceptable_to[res.Name()] = append(acceptable_to[res.Name()], req)
+				}
 			}
 		}
 	}
@@ -176,11 +176,11 @@ func Schedule(resources []Resource,
 	}
 	for _, req := range s_requirements {
 		// sort acceptable by prefer/avoid (primary), num_acceptable_to (secondary)
-        sort.Sort(resprefs(acceptable[req.Name()]))
+		sort.Sort(resprefs(acceptable[req.Name()]))
 		// fill minimum requirement from acceptable
 		min, _ := req.Count()
-		for i := 0; i < len(acceptable[req.Name()]) && n_assigned[req.Name()] < min; i = i+1 {
-            rp := acceptable[req.Name()][i]
+		for i := 0; i < len(acceptable[req.Name()]) && n_assigned[req.Name()] < min; i = i + 1 {
+			rp := acceptable[req.Name()][i]
 			if _, ok := assigned[rp.res.Name()]; !ok {
 				assigned[rp.res.Name()] = req
 				n_assigned[req.Name()] += 1
@@ -193,7 +193,7 @@ func Schedule(resources []Resource,
 	for _, req := range requirements {
 		_, max := req.Count()
 		for i := 0; i < len(acceptable[req.Name()]) && n_assigned[req.Name()] < max; i = i + 1 {
-            rp := acceptable[req.Name()][i]
+			rp := acceptable[req.Name()][i]
 			if _, ok := assigned[rp.res.Name()]; !ok {
 				assigned[rp.res.Name()] = req
 				n_assigned[req.Name()] += 1

@@ -1,3 +1,8 @@
+
+This is a package created largely as an exercise in learning the Go language. There is, I'm sure,
+much to be desired in terms of stylistic issues as well as issues unique to a Go newbie. Use at
+your own risk.
+
 PACKAGE DOCUMENTATION
 
 package bulk_resource_scheduler
