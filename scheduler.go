@@ -53,9 +53,7 @@ func Matches(req Requirement, res Resource) (acceptable bool, preference int) {
             }
 		case Prefer:
 			prop, found := res.Properties()[p.Name()]
-			if !found {
-				preference += 1
-			} else {
+			if found {
                 m, err := p.Matches(prop)
                 if err == nil && (m) {
                     preference += 1

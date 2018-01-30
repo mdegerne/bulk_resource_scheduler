@@ -159,7 +159,12 @@ type varTestsStruct struct {
 var varTests = []varTestsStruct {
     { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Require, 1}, tprop{"n2", Require, 1} }, true, 0 },
     { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Require, 1}, tprop{"n2", Require, 2} }, false, 0 },
+    { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n4", Require, 1}, tprop{"n2", Require, 2} }, false, 0 },
     { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Prefer, 1}, tprop{"n2", Require, 1} }, true, 1 },
+    { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n4", Prefer, 1}, tprop{"n2", Require, 1} }, true, 0 },
+    { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Avoid, 1}, tprop{"n2", Require, 1} }, true, -1 },
+    { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Never, 1}, tprop{"n2", Require, 1} }, false, 0 },
+    { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Never, 1}, tprop{"n2", Prefer, 1} }, false, 1 },
 }
 
 func TestVariants(t *testing.T) {
