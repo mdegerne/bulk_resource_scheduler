@@ -20,6 +20,7 @@ package bulk_resource_scheduler
 
 import (
     "errors"
+    "fmt"
     "testing"
 )
 
@@ -58,7 +59,7 @@ func (tr tres) Name() string {
 func (tr tres) Properties() map[string]Property {
     return tr.props
 }
-func (tr tres) AddProp(tp tprop) {
+func (tr *tres) AddProp(tp tprop) {
     if tr.props == nil {
         tr.props = make(map[string]Property)
     }
@@ -79,7 +80,7 @@ func (tr treq) Properties() []Property {
 func (tr treq) Count() (Min, Max int) {
     return tr.min, tr.max
 }
-func (tr treq) AddProp(tp tprop) {
+func (tr *treq) AddProp(tp tprop) {
     if tr.props == nil {
         tr.props = []Property { tp }
         return
@@ -99,8 +100,8 @@ func TestMatch1prop1res1req(t *testing.T) {
     reqprop := tprop{"n1", Require, 1}
     requirement.AddProp(reqprop)
     // verify prop match:
-    match, ok := reqprop.Matches(resprop)
-    if !(match && ok == nil) {
+    match, err := reqprop.Matches(resprop)
+    if !(match && err == nil) {
         t.Errorf("Prop Matches failed - Test Not set up right")
     }
     m, _ := Matches(requirement, resource)
@@ -117,7 +118,73 @@ func TestMatch1prop1res1req(t *testing.T) {
         t.Errorf("No result, wtf?")
     }
     rs_req := result[resource.Name()]
-    if rs_req.Name() != requirement.Name() {
+    if rs_req == nil || rs_req.Name() != requirement.Name() {
         t.Errorf("rs_req (%T) != requirement (%T)", rs_req, requirement)
+    }
+}
+
+// Self test - test the test functions
+func TestMatchProp(t *testing.T) {
+    resprop := tprop{"n1", Require, 1}
+    reqprop1 := tprop{"n2", Require, 1}
+    _, err := reqprop1.Matches(resprop)
+    if (err == nil) {
+        t.Error("Expected failure to match - wrong name")
+    }
+    reqprop2 := tprop{"n1", Require, 2}
+    match, err := reqprop2.Matches(resprop)
+    if (err != nil) {
+        t.Error("Unexpected failure of Matches")
+    }
+    if match {
+        t.Error("Should not have matched reqprop2")
+    }
+    reqprop3 := tprop{"n1", Require, 1}
+    match, err = reqprop3.Matches(resprop)
+    if (err != nil) {
+        t.Error("Unexpected failure of Matches")
+    }
+    if !match {
+        t.Error("Should have matched reqprop3")
+    }
+}
+
+
+type varTestsStruct struct {
+    resprops []tprop
+    reqprops []tprop
+    match bool
+    pref int
+}
+var varTests = []varTestsStruct {
+    { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Require, 1}, tprop{"n2", Require, 1} }, true, 0 },
+    { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Require, 1}, tprop{"n2", Require, 2} }, false, 0 },
+    { []tprop{ tprop{ "n1", Require, 1}, tprop{"n2", Require, 1}, tprop{"n3", Require, 1} }, []tprop{ tprop{ "n3", Prefer, 1}, tprop{"n2", Require, 1} }, true, 1 },
+}
+
+func TestVariants(t *testing.T) {
+    var resource tres
+    var requirement treq
+    for i, tstruct := range varTests {
+        resource.name = fmt.Sprintf("testres%d", i)
+        resource.props = map[string]Property{}
+        for _, resprop := range tstruct.resprops {
+            resource.AddProp(resprop)
+        }
+        requirement.name = fmt.Sprintf("testreq%d", i)
+        requirement.props = nil
+        for _, reqprop := range tstruct.reqprops {
+            requirement.AddProp(reqprop)
+        }
+        requirement.min = 1
+        requirement.max = 1
+        m, pref := Matches(requirement, resource)
+        if m != tstruct.match {
+            t.Errorf("Match failed (i=%d) %v != %v", i, m, tstruct.match)
+        }
+        if pref != tstruct.pref {
+            t.Errorf("Match pref failed (i=%d) %v != %v", i, pref, tstruct.pref)
+        }
+
     }
 }

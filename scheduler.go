@@ -45,31 +45,37 @@ func Matches(req Requirement, res Resource) (acceptable bool, preference int) {
 			prop, found := res.Properties()[p.Name()]
 			if !found {
 				acceptable = false
-			}
-			m, ok := p.Matches(prop)
-			if ok == nil && (!m) {
-				acceptable = false
-			}
+			} else {
+			    m, err := p.Matches(prop)
+			    if err == nil && (!m) {
+				    acceptable = false
+			    }
+            }
 		case Prefer:
 			prop, found := res.Properties()[p.Name()]
 			if !found {
 				preference += 1
-			}
-			m, ok := p.Matches(prop)
-			if ok == nil && (!m) {
-				preference += 1
+			} else {
+                m, err := p.Matches(prop)
+                if err == nil && (m) {
+                    preference += 1
+                }
 			}
 		case Avoid:
 			prop, found := res.Properties()[p.Name()]
-			m, _ := p.Matches(prop)
-			if found && m {
-				preference -= 1
-			}
+            if found {
+			    m, _ := p.Matches(prop)
+			    if m {
+				    preference -= 1
+			    }
+            }
 		case Never:
 			prop, found := res.Properties()[p.Name()]
-			m, _ := p.Matches(prop)
-			if found && m {
-				acceptable = false
+            if found {
+                m, _ := p.Matches(prop)
+                if m {
+                    acceptable = false
+                }
 			}
 		}
 	}
@@ -172,9 +178,7 @@ func Schedule(resources []Resource,
 	}
 	for _, req := range s_requirements {
 		// sort acceptable by prefer/avoid (primary), num_acceptable_to (secondary)
-        if len(acceptable[req.Name()]) > 1 {
-            sort.Sort(resprefs(acceptable[req.Name()]))
-        }
+        sort.Sort(resprefs(acceptable[req.Name()]))
 		// fill minimum requirement from acceptable
 		min, _ := req.Count()
 		for i := 0; i < len(acceptable[req.Name()]) && n_assigned[req.Name()] < min; i = i+1 {
