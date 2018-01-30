@@ -168,7 +168,7 @@ func Schedule(resources []Resource,
 			return j_assigned
 		}
 		if rps[i].pref != rps[j].pref {
-			return rps[i].pref < rps[j].pref
+			return rps[i].pref > rps[j].pref
 		}
 		i_acc_to := len(acceptable_to[rps[i].res.Name()])
 		j_acc_to := len(acceptable_to[rps[j].res.Name()])

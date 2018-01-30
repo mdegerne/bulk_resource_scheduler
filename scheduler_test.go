@@ -232,6 +232,102 @@ var stests = []schedulerTest {
         []string{},
         map[string]string{"R1": "Req2", "R2": "Req1"},
     },
+    schedulerTest{
+        []tres{
+            tres{
+                "R1",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R2",
+                map[string]Property{"P1": tprop{ "P1", Require, 2}},
+            },
+            tres{
+                "R3",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}, "P2": tprop{ "P2", Require, 1}},
+            },
+        },
+        []treq{
+            treq{
+                "Req1",
+                []Property{tprop{"P1", Require, 2}},
+                1,
+                2,
+            },
+            treq{
+                "Req2",
+                []Property{tprop{"P1", Require, 1},tprop{"P2", Prefer, 1}},
+                1,
+                2,
+            },
+        },
+        []string{},
+        map[string]string{"R1": "Req2", "R2": "Req1", "R3": "Req2"},
+    },
+    schedulerTest{
+        []tres{
+            tres{
+                "R1",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R2",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R3",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}, "P2": tprop{ "P2", Require, 1}},
+            },
+        },
+        []treq{
+            treq{
+                "Req1",
+                []Property{tprop{"P1", Require, 1}},
+                1,
+                2,
+            },
+            treq{
+                "Req2",
+                []Property{tprop{"P1", Require, 1},tprop{"P2", Prefer, 1}},
+                1,
+                2,
+            },
+        },
+        []string{},
+        map[string]string{"R1": "Req1", "R2": "Req1", "R3": "Req2"},
+    },
+    schedulerTest{
+        []tres{
+            tres{
+                "R1",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R2",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R3",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}, "P2": tprop{ "P2", Require, 1}},
+            },
+        },
+        []treq{
+            treq{
+                "Req1",
+                []Property{tprop{"P1", Require, 1}},
+                1,
+                2,
+            },
+            treq{
+                "Req2",
+                []Property{tprop{"P1", Require, 1},tprop{"P2", Avoid, 1}},
+                1,
+                2,
+            },
+        },
+        []string{},
+        map[string]string{"R1": "Req1", "R2": "Req2", "R3": "Req1"},
+    },
 }
 
 func TestSchedulerVariants(t *testing.T) {
