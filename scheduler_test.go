@@ -288,6 +288,38 @@ var stests = []schedulerTest {
             },
             treq{
                 "Req2",
+                []Property{tprop{"P1", Never, 1},tprop{"P2", Prefer, 1}},
+                1,
+                2,
+            },
+        },
+        []string{"Req2"},
+        map[string]string{"R1": "Req1", "R2": "Req1"},
+    },
+    schedulerTest{
+        []tres{
+            tres{
+                "R1",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R2",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R3",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}, "P2": tprop{ "P2", Require, 1}},
+            },
+        },
+        []treq{
+            treq{
+                "Req1",
+                []Property{tprop{"P1", Require, 1}},
+                1,
+                2,
+            },
+            treq{
+                "Req2",
                 []Property{tprop{"P1", Require, 1},tprop{"P2", Prefer, 1}},
                 1,
                 2,
@@ -295,6 +327,98 @@ var stests = []schedulerTest {
         },
         []string{},
         map[string]string{"R1": "Req1", "R2": "Req1", "R3": "Req2"},
+    },
+    schedulerTest{
+        []tres{
+            tres{
+                "R1",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R2",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R3",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}, "P2": tprop{ "P2", Require, 1}},
+            },
+            tres{
+                "R4",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R5",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}, "P2": tprop{ "P2", Require, 1}},
+            },
+        },
+        []treq{
+            treq{
+                "Req1",
+                []Property{tprop{"P1", Require, 1}},
+                1,
+                2,
+            },
+            treq{
+                "Req2",
+                []Property{tprop{"P1", Require, 1},tprop{"P2", Prefer, 1}},
+                1,
+                2,
+            },
+            treq{
+                "Req3",
+                []Property{tprop{"P1", Require, 1},tprop{"P2", Require, 1}},
+                1,
+                1,
+            },
+        },
+        []string{},
+        map[string]string{"R1": "Req1", "R2": "Req1", "R3": "Req3", "R4": "Req2", "R5": "Req2"},
+    },
+    schedulerTest{
+        []tres{
+            tres{
+                "R1",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R2",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R3",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}, "P2": tprop{ "P2", Require, 1}},
+            },
+            tres{
+                "R4",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}},
+            },
+            tres{
+                "R5",
+                map[string]Property{"P1": tprop{ "P1", Require, 1}, "P2": tprop{ "P2", Require, 1}},
+            },
+        },
+        []treq{
+            treq{
+                "Req1",
+                []Property{tprop{"P1", Require, 1}},
+                1,
+                3,
+            },
+            treq{
+                "Req2",
+                []Property{tprop{"P1", Require, 1},tprop{"P2", Prefer, 1}},
+                1,
+                2,
+            },
+            treq{
+                "Req3",
+                []Property{tprop{"P1", Require, 1},tprop{"P2", Require, 1}},
+                1,
+                1,
+            },
+        },
+        []string{},
+        map[string]string{"R1": "Req1", "R2": "Req1", "R3": "Req3", "R4": "Req1", "R5": "Req2"},
     },
     schedulerTest{
         []tres{
